@@ -1,0 +1,78 @@
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Usuario</title>
+	</head>
+	<body>
+		Luminosidad: <div id="luminosidad"></div>
+		Temperatura:	<div id="temperatura"></div> </br>
+		Estado de la persiana: <span id="persianaEstado"></span> </br>
+		Estado del AC:	<span id="ACEstado"></span> </br>
+		<button id="persiana" onclick="cambiarEstado('persiana')" style="margin: 5px 0px 0px 0px;">Cerrar persiana</button>
+		<button id="AC" onclick="cambiarEstado('AC')" style="margin: 0px 0px 20px 0px;">Encender AC</button> </br>
+		Alarmas:
+		<div id="alarma1"></div>
+		<div id="alarma2"></div>
+		<div id="alarma3"></div>
+		<div id="alarma4"></div>
+		<div id="alarma5"></div>
+	</body>
+	<script src="/socket.io/socket.io.js"></script>
+	<script type="text/javascript">
+		var socket = io.connect('http://localhost:8080');
+
+		socket.on('actualizarUsuarioSensores', function(data) {
+			var luminosidad = document.getElementById("luminosidad");
+			var temperatura = document.getElementById("temperatura");
+			luminosidad.innerHTML = data.luminosidad;
+			temperatura.innerHTML = data.temperatura;
+		});
+
+		socket.on('actualizarActuadores', function(data) {
+			var persiana = document.getElementById("persiana");
+			var persianaEstado = document.getElementById("persianaEstado");
+			var AC = document.getElementById("AC");
+			var ACEstado = document.getElementById("ACEstado");
+			
+			if (data.persianaCerrada){
+				persiana.innerHTML = "Abrir persiana";
+				persianaEstado.innerHTML = "Cerrada";
+			} else {
+				persiana.innerHTML = "Cerrar persiana";
+				persianaEstado.innerHTML = "Abierta";
+			}
+
+			if (data.AC){
+				AC.innerHTML = "Apagar AC";
+				ACEstado.innerHTML = "Encendido";
+			} else {
+				AC.innerHTML = "Encender AC";
+				ACEstado.innerHTML = "Apagado";
+			}
+		});
+
+		socket.on('actualizarUsuarioAlarmas', function(data) {
+			var alarma1 = document.getElementById("alarma1");
+			var alarma2 = document.getElementById("alarma2");
+			var alarma3 = document.getElementById("alarma3");
+			var alarma4 = document.getElementById("alarma4");
+			var alarma5 = document.getElementById("alarma5");
+			var persiana = document.getElementById("persiana");
+			var persianaEstado = document.getElementById("persianaEstado");
+
+			alarma1.innerHTML = data.alarma1;
+			alarma2.innerHTML = data.alarma2;
+			alarma3.innerHTML = data.alarma3;
+			alarma4.innerHTML = data.alarma4;
+			alarma5.innerHTML = data.alarma5;
+		});
+
+		function cambiarEstado(tipo){
+			socket.emit('cambiarEstado',tipo);
+		}
+		
+		//socket.emit('solicitarActualizacionActuadores');
+				
+	</script>
+</html>
+

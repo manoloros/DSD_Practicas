@@ -1,0 +1,71 @@
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Sensores</title>
+	</head>
+	<body>
+		<form action="javascript:void(0);" onsubmit="javascript:enviar();">
+			Luminosidad:</br>
+ 			<input type="label" id="luminosidad" value="40"/></br>
+			Temperatura: </br>
+			<input type="label" id="temperatura" value="20"/></br>
+			Umbral maximo temperatura: </br>
+			<input type="label" id="maximoTemp" value="30"/></br>
+			Umbral minimo temperatura: </br>
+			<input type="label" id="minimoTemp" value="10"/></br>
+			Umbral maximo luminosidad: </br>
+			<input type="label" id="maximoLum" value="70"/></br>
+			Umbral minimo luminosidad: </br>
+			<input type="label" id="minimoLum" value="20"/></br>
+			<input type="submit" value="Enviar" style="margin: 5px 0px 10px 0px;"/>
+		</form>
+		Estado de la persiana: <span id="persianaEstado"></span> </br>
+		Estado del AC:	<span id="ACEstado"></span> </br>
+		</br>
+		Base de datos: </br>
+		<button onclick="verContenido()" style="margin: 5px 0px 10px 0px;">Ver contenido</button>
+		<div id="contenido"></div>
+	</body>
+	<script src="/socket.io/socket.io.js"></script>
+	<script type="text/javascript">
+		var socket = io.connect('http://localhost:8080');
+
+		function enviar(){
+			var luminosidad = document.getElementById("luminosidad").value;
+			var temperatura = document.getElementById("temperatura").value;
+			var maximoTemp = document.getElementById("maximoTemp").value;
+			var minimoTemp = document.getElementById("minimoTemp").value;
+			var maximoLum = document.getElementById("maximoLum").value;
+			var minimoLum = document.getElementById("minimoLum").value;
+			socket.emit('actualizarServidor',{luminosidad, temperatura, maximoTemp, minimoTemp, maximoLum, minimoLum});
+		}
+
+		function verContenido(){
+			socket.emit('verContenido');
+		}
+
+		socket.on('verContenido', function (data) {
+			var contenido = document.getElementById("contenido");
+			contenido.innerHTML = JSON.stringify(data);
+		});
+
+		socket.on('actualizarActuadores', function(data) {
+			var persianaEstado = document.getElementById("persianaEstado");
+			var ACEstado = document.getElementById("ACEstado");
+			
+			if (data.persianaCerrada){
+				persianaEstado.innerHTML = "Cerrada";
+			} else {
+				persianaEstado.innerHTML = "Abierta";
+			}
+
+			if (data.AC){
+				ACEstado.innerHTML = "Encendido";
+			} else {
+				ACEstado.innerHTML = "Apagado";
+			}
+		});
+				
+	</script>
+</html>
+
